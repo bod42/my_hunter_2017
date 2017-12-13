@@ -2,10 +2,10 @@
 ** EPITECH PROJECT, 2017
 ** c code
 ** File description:
-** pool
+** my_hunter
 */
 
-#include "../include/my.h"
+#include "my.h"
 #include <unistd.h>
 
 void	my_putchar(char c)

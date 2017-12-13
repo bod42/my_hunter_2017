@@ -5,88 +5,90 @@
 ** my_hunter
 */
 
-#include "../include/my.h"
+#include "my.h"
 
-int open_window()
+sfMusic		*create_music(t_music Music)
 {
-	float x = 0;
-	sfRenderWindow *window;
-	sfVideoMode video_mode;
-	sfTexture *texture;
-	sfTexture *texture2;
-	sfTexture *texture3;
-	sfMusic *music;
-	sfMusic *music2;
-	sfSprite *sprite;
-	sfSprite *sprite2;
-	sfSprite *sprite3;
-	sfEvent event;
-	sfVector2f vitesse;
-	sfVector2f position;
-	sfVector2f mouse;
-	sfVector2i mouseposition;
+	Music.music = sfMusic_createFromFile("./ost/ost.wav");
+	sfMusic_play(Music.music);
+	sfMusic_setLoop(Music.music, sfTrue);
+	return (Music.music);
+}
 
-	position.x = 0;
-	position.y = 200;
-	vitesse.x = 0.5;
-	video_mode.width = 1920;
-	video_mode.height = 1080;
-	video_mode.bitsPerPixel = 32;
-	sprite = sfSprite_create();
-	sprite2 = sfSprite_create();
-	sprite3 = sfSprite_create();
+void	launch_if(t_sprite Sprite, t_music Music)
+{
+	sfMusic_play(Music.music2);
+	sfMusic_setVolume(Music.music, 20);
+	sfMusic_setVolume(Music.music2, 100);
+	Sprite.position2.y = (rand() % 800);
+	sfSprite_setPosition(Sprite.sprite2, Sprite.position2);
+}
 
-	window = sfRenderWindow_create(video_mode, "THE STRONGEST HUNTER", sfDefaultStyle, NULL);
-	//sfRenderWindow_setFramerateLimit(window, 30);
-	texture = sfTexture_createFromFile("./picture/decord2.jpg", NULL);
-	texture2 = sfTexture_createFromFile("./picture/sprite1.png", NULL);
-	texture3 = sfTexture_createFromFile("./picture/viseur2.png", NULL);
-	music = sfMusic_createFromFile("ost.wav");
-	music2 = sfMusic_createFromFile("0437.ogg");
-	sfMusic_play(music);
-	sfMusic_setLoop(music,sfTrue);
-	sfSprite_setTexture(sprite, texture, sfTrue);
-	sfSprite_setTexture(sprite2, texture2, sfTrue);
-	sfSprite_setTexture(sprite3, texture3, sfTrue);
-	sfSprite_setPosition(sprite2, position);
-	while (sfRenderWindow_isOpen(window)) {
-		sfRenderWindow_drawSprite(window, sprite, NULL);
-		if (event.type == sfEvtMouseButtonPressed) {
-			sfMusic_play(music2);
-			sfMusic_setVolume(music, 20);
-			sfMusic_setVolume(music2, 100);
-		}
-		sfRenderWindow_setMouseCursorVisible(window, sfFalse);
-		if (event.type == sfEvtMouseButtonReleased) {
-			sfMusic_setVolume(music, 50);
-		}
-		if (sfRenderWindow_pollEvent(window, &event)) {
-			if (event.type == sfEvtClosed)
-				sfRenderWindow_close(window);
-		}
-		sfSprite_move(sprite2, vitesse);
-		x++;
-		if (x == 3800) {
-			x = 0;
-			sfSprite_setPosition(sprite2, position);
+void	draw_sprite(t_window Window, t_sprite Sprite)
+{
+	sfRenderWindow_drawSprite(Window.window, Sprite.sprite, NULL);
+	sfRenderWindow_drawSprite(Window.window, Sprite.sprite3, NULL);
+	sfRenderWindow_drawSprite(Window.window, Sprite.sprite2, NULL);
+}
+
+int	open_window()
+{
+	t_window Window;
+	t_sprite Sprite;
+	t_music Music;
+	int sprite_animated = 0;
+	sfIntRect size_sprite = {sprite_animated,0,70,96};
+	int score = 0;
+
+	Window.clock = sfClock_create();
+	Sprite.sprite_animated = 0;
+	Sprite.position = set_pos(Sprite);
+	Sprite.position2 = set_pos2(Sprite);
+	Sprite.vitesse.x = 0.5;
+	Window.window = create_window(Window);
+	Sprite.sprite = pose_sprite(Sprite);
+	Sprite.sprite2 = pose_sprite2(Sprite, size_sprite);
+	Sprite.sprite3 = pose_sprite3(Sprite);
+	Music.music = create_music(Music);
+	Music.music2 = sfMusic_createFromFile("./ost/0437.ogg");
+	while (sfRenderWindow_isOpen(Window.window)) {
+		Window.x_min = Sprite.posSprite.x + 5;
+		Window.x_max = Sprite.posSprite.x + 60;
+		Window.time = sfClock_getElapsedTime(Window.clock);
+		Window.seconds = Window.time.microseconds / 1000000.0;
+		if ((Window.mouse.x > Window.x_min && Window.mouse.x < Window.x_max)) {
+			if (Window.event.type == sfEvtMouseButtonPressed) {
+				launch_if(Sprite, Music);
+				score++;
+				Sprite.vitesse.x +=0.1;
 			}
-		sfRenderWindow_drawSprite(window, sprite2, NULL);
-		mouseposition = sfMouse_getPositionRenderWindow(window);
-		mouse.y = mouseposition.y - 48;
-		mouse.x = mouseposition.x - 48;
-		sfSprite_setPosition(sprite3, mouse);
-		sfRenderWindow_drawSprite(window, sprite3, NULL);
-		sfRenderWindow_display(window);
+		}
+		 sfRenderWindow_setMouseCursorVisible(Window.window, sfFalse);
+		 if (Window.event.type == sfEvtMouseButtonReleased) {
+			 sfMusic_setVolume(Music.music, 50);
+		 }
+		 if (sfRenderWindow_pollEvent(Window.window, &Window.event)) {
+			 if (Window.event.type == sfEvtClosed)
+				 sfRenderWindow_close(Window.window);
+		 }
+		 Sprite.posSprite = sfSprite_getPosition(Sprite.sprite2);
+		 sfSprite_move(Sprite.sprite2, Sprite.vitesse);
+		 if (Sprite.posSprite.x >= 1920)
+			 victory(Music, Window, score);
+		 Window.mouseposition = sfMouse_getPositionRenderWindow(Window.window);
+		 Window.mouse.y = Window.mouseposition.y - 25;
+		 Window.mouse.x = Window.mouseposition.x - 30;
+		 if (Window.seconds > 0.1) {
+			 size_sprite.left += 72;
+			 sfSprite_setTextureRect(Sprite.sprite2, size_sprite);
+			 sfClock_restart(Window.clock);
+		 }
+		 if (size_sprite.left == 792)
+			 size_sprite.left = 0;
+		 sfSprite_setPosition(Sprite.sprite3, Window.mouse);
+		 draw_sprite(Window, Sprite);
+		 sfRenderWindow_display(Window.window);
 	}
-	sfRenderWindow_destroy(window);
-	sfMusic_destroy(music);
-	sfMusic_destroy(music2);
-	sfSprite_destroy(sprite);
-	sfSprite_destroy(sprite2);
-	sfSprite_destroy(sprite3);
-	sfTexture_destroy(texture);
-	sfTexture_destroy(texture2);
-	sfTexture_destroy(texture3);
 	return (0);
 }
 
@@ -94,7 +96,7 @@ int	main(int ac, char **av)
 {
 	if (ac > 2) {
 		my_putstr("wrong argument use -h for more help\n");
-		exit (0);
+		return (0);
 	}
 	if (ac == 2) {
 		if (my_strcmp(av[1], "-h") == 0) {

@@ -2,10 +2,10 @@
 ** EPITECH PROJECT, 2017
 ** c code
 ** File description:
-** pool
+** my_hunter
 */
 
-#include "../include/my.h"
+#include "my.h"
 
 int	my_strcmp(char *s1, char *s2)
 {

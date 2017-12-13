@@ -6,9 +6,14 @@
 ##
 
 
-CC	=	gcc -W -Wall -Wextra
+CC	=	gcc -W -Wall -Wextra -I ./include
 
 SRCS	=	./src/my_hunter.c	\
+		./src/sprite.c		\
+		./src/window.c		\
+		./src/destroy.c		\
+		./src/victory.c		\
+		./src/my_put_nbr.c	\
 		./src/help.c		\
 		./src/my_strcmp.c	\
 		./src/my_putstr.c

@@ -1,11 +1,11 @@
-/*
+ /*
 ** EPITECH PROJECT, 2017
 ** c code
 ** File description:
 ** my_hunter
 */
 
-#include "../include/my.h"
+#include "my.h"
 
 void	help()
 {
